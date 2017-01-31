@@ -1,4 +1,4 @@
-# pretty-format [![Travis build status](http://img.shields.io/travis/thejameskyle/pretty-format.svg?style=flat)](https://travis-ci.org/thejameskyle/pretty-format)
+# @ava/pretty-format [![Travis build status](http://img.shields.io/travis/avajs/pretty-format.svg?style=flat)](https://travis-ci.org/avajs/pretty-format)
 
 > Stringify any JavaScript value.
 
@@ -10,7 +10,7 @@
 ## Installation
 
 ```sh
-$ npm install pretty-format
+$ npm install @ava/pretty-format
 ```
 
 ## Usage

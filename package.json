@@ -1,24 +1,16 @@
 {
   "name": "@ava/pretty-format",
   "version": "1.0.0",
-  "description": "Stringify any JavaScript value.",
+  "description": "Stringify any JavaScript value",
   "license": "MIT",
-  "main": "index.js",
+  "repository": "avajs/pretty-format",
   "author": "James Kyle <me@thejameskyle.com>",
-  "keywords": [],
-  "repository": "https://github.com/thejameskyle/pretty-format.git",
-  "bugs": "https://github.com/thejameskyle/pretty-format/issues",
-  "homepage": "https://github.com/thejameskle/pretty-format",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "test": "jest",
     "perf": "node perf/test.js"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true
   },
   "dependencies": {
     "ansi-styles": "^2.2.1"
@@ -28,5 +20,9 @@
     "jest": "^15.1.1",
     "left-pad": "^1.1.1",
     "react": "15.3.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true
   }
 }
