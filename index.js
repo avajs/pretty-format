@@ -300,6 +300,7 @@ const DEFAULTS = {
     string: 'red',
     date: 'red',
     symbol: 'red',
+    regex: 'red',
     function: 'blue',
     error: 'red',
     boolean: 'yellow',
