@@ -298,6 +298,8 @@ const DEFAULTS = {
     value: 'green',
     number: 'yellow',
     string: 'red',
+    date: 'red',
+    symbol: 'red',
     function: 'blue',
     error: 'red',
     boolean: 'yellow',
