@@ -170,7 +170,7 @@ function printObject(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDep
       const name = print(key, indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
       const value = print(val[key], indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
 
-      result += innerIndent + key + ': ' + value;
+      result += innerIndent + name + ': ' + value;
 
       if (i < keys.length - 1) {
         result += colors.comma.open + ',' + colors.comma.close + spacing;
