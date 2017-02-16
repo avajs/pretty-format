@@ -125,14 +125,15 @@ describe('prettyFormat()', () => {
   it('prints a map with values', () => {
     const val = new Map();
     val.set('prop1', 'value1');
-    val.set('prop2', 'value2');
-    expect(prettyFormat(val)).toEqual('Map {\n  "prop1" => "value1",\n  "prop2" => "value2",\n}');
+    val.set('another prop', 'value2');
+    expect(prettyFormat(val)).toEqual('Map {\n  prop1 => "value1",\n  "another prop" => "value2",\n}');
   });
 
   it('prints a map with non-string keys', () => {
     const val = new Map();
     val.set({ prop: 'value' }, { prop: 'value' });
-    expect(prettyFormat(val)).toEqual('Map {\n  Object {\n    "prop": "value",\n  } => Object {\n    "prop": "value",\n  },\n}');
+    val.set(Symbol(), 'value')
+    expect(prettyFormat(val)).toEqual('Map {\n  Object {\n    prop: "value",\n  } => Object {\n    prop: "value",\n  },\n  Symbol() => "value",\n}');
   });
 
   it('prints NaN', () => {
@@ -161,20 +162,20 @@ describe('prettyFormat()', () => {
   });
 
   it('prints an object with properties', () => {
-    const val = { prop1: 'value1', prop2: 'value2' };
-    expect(prettyFormat(val)).toEqual('Object {\n  "prop1": "value1",\n  "prop2": "value2",\n}');
+    const val = { prop1: 'value1', 'another prop': 'value2', 42: 'question' };
+    expect(prettyFormat(val)).toEqual('Object {\n  42: "question",\n  "another prop": "value2",\n  prop1: "value1",\n}');
   });
 
   it('prints an object with properties and symbols', () => {
     const val = { prop: 'value1' };
     val[Symbol('symbol1')] = 'value2';
     val[Symbol('symbol2')] = 'value3';
-    expect(prettyFormat(val)).toEqual('Object {\n  "prop": "value1",\n  Symbol(symbol1): "value2",\n  Symbol(symbol2): "value3",\n}');
+    expect(prettyFormat(val)).toEqual('Object {\n  prop: "value1",\n  Symbol(symbol1): "value2",\n  Symbol(symbol2): "value3",\n}');
   });
 
   it('prints an object with sorted properties', () => {
     const val = { b: 1, a: 2 };
-    expect(prettyFormat(val)).toEqual('Object {\n  "a": 2,\n  "b": 1,\n}');
+    expect(prettyFormat(val)).toEqual('Object {\n  a: 2,\n  b: 1,\n}');
   });
 
   it('prints regular expressions from constructors', () => {
@@ -186,15 +187,15 @@ describe('prettyFormat()', () => {
     const val = /regexp/ig;
     expect(prettyFormat(val)).toEqual('/regexp/gi');
   });
-  
+
   it('escapes regular expressions', () => {
     const val = /regexp\d/ig;
     expect(prettyFormat(val, {escapeRegex: true})).toEqual('/regexp\\\\d/gi');
   });
-  
+
   it('escapes regular expressions nested inside object', () => {
     const obj = {test: /regexp\d/ig};
-    expect(prettyFormat(obj, {escapeRegex: true})).toEqual('Object {\n  "test": /regexp\\\\d/gi,\n}');
+    expect(prettyFormat(obj, {escapeRegex: true})).toEqual('Object {\n  test: /regexp\\\\d/gi,\n}');
   });
 
   it('prints an empty set', () => {
@@ -241,29 +242,29 @@ describe('prettyFormat()', () => {
 
   it('prints deeply nested objects', () => {
     const val = { prop: { prop: { prop: 'value' } } };
-    expect(prettyFormat(val)).toEqual('Object {\n  "prop": Object {\n    "prop": Object {\n      "prop": "value",\n    },\n  },\n}');
+    expect(prettyFormat(val)).toEqual('Object {\n  prop: Object {\n    prop: Object {\n      prop: "value",\n    },\n  },\n}');
   });
 
   it('prints circular references', () => {
     const val = {};
     val.prop = val;
-    expect(prettyFormat(val)).toEqual('Object {\n  "prop": [Circular],\n}')
+    expect(prettyFormat(val)).toEqual('Object {\n  prop: [Circular],\n}')
   });
 
   it('prints parallel references', () => {
     const inner = {};
     const val = { prop1: inner, prop2: inner };
-    expect(prettyFormat(val)).toEqual('Object {\n  "prop1": Object {},\n  "prop2": Object {},\n}')
+    expect(prettyFormat(val)).toEqual('Object {\n  prop1: Object {},\n  prop2: Object {},\n}')
   });
 
   it('can customize indent', () => {
     const val = { prop: 'value' };
-    expect(prettyFormat(val, { indent: 4 })).toEqual('Object {\n    "prop": "value",\n}');
+    expect(prettyFormat(val, { indent: 4 })).toEqual('Object {\n    prop: "value",\n}');
   });
 
   it('can customize the max depth', () => {
     const val = { prop: { prop: { prop: {} } } };
-    expect(prettyFormat(val, { maxDepth: 2 })).toEqual('Object {\n  "prop": Object {\n    "prop": [Object],\n  },\n}');
+    expect(prettyFormat(val, { maxDepth: 2 })).toEqual('Object {\n  prop: Object {\n    prop: [Object],\n  },\n}');
   });
 
   it('throws on invalid options', () => {
@@ -310,7 +311,7 @@ describe('prettyFormat()', () => {
     expect(prettyFormat({
       value: true,
       toJSON: () => ({value: false}),
-    })).toEqual('Object {\n  "value": false,\n}');
+    })).toEqual('Object {\n  value: false,\n}');
   });
 
   it('calls toJSON and prints an internal representation.', () => {
@@ -324,14 +325,14 @@ describe('prettyFormat()', () => {
     expect(prettyFormat({
       toJSON: false,
       value: true,
-    })).toEqual('Object {\n  "toJSON": false,\n  "value": true,\n}');
+    })).toEqual('Object {\n  toJSON: false,\n  value: true,\n}');
   });
 
   it('calls toJSON recursively', () => {
     expect(prettyFormat({
       value: false,
       toJSON: () => ({toJSON: () => ({value: true})}),
-    })).toEqual('Object {\n  "value": true,\n}');
+    })).toEqual('Object {\n  value: true,\n}');
   });
 
   it('calls toJSON on Sets', () => {
@@ -347,7 +348,7 @@ describe('prettyFormat()', () => {
     set.toJSON = jest.fn(() => 'map');
     expect(prettyFormat(set, {
       callToJSON: false,
-    })).toEqual('Set {\n  Object {\n    \"apple\": \"banana\",\n    \"toJSON\": [Function ' + name + '],\n  },\n}');
+    })).toEqual('Set {\n  Object {\n    apple: \"banana\",\n    toJSON: [Function ' + name + '],\n  },\n}');
     expect(set.toJSON).not.toBeCalled();
     expect(value.toJSON).not.toBeCalled();
   });
@@ -357,7 +358,7 @@ describe('prettyFormat()', () => {
       const val = { prop: [1, 2, Infinity, new Set([1, 2, 3])] };
       expect(prettyFormat(val, {
         min: true
-      })).toEqual('{"prop": [1, 2, Infinity, Set {1, 2, 3}]}')
+      })).toEqual('{prop: [1, 2, Infinity, Set {1, 2, 3}]}')
     });
 
     it('does not allow indent !== 0 in min mode', () => {
@@ -434,7 +435,7 @@ describe('prettyFormat()', () => {
     it('supports a single element with a object prop', () => {
       assertPrintedJSX(
         React.createElement('Mouse', { customProp: { one: '1', two: 2 } }),
-        '<Mouse\n  customProp={\n    Object {\n      "one": "1",\n      "two": 2,\n    }\n  } />'
+        '<Mouse\n  customProp={\n    Object {\n      one: "1",\n      two: 2,\n    }\n  } />'
       );
     });
 
@@ -443,7 +444,7 @@ describe('prettyFormat()', () => {
         React.createElement('Mouse', { customProp: { one: '1', two: 2 } },
           React.createElement('Mouse')
         ),
-        '<Mouse\n  customProp={\n    Object {\n      "one": "1",\n      "two": 2,\n    }\n  }>\n  <Mouse />\n</Mouse>'
+        '<Mouse\n  customProp={\n    Object {\n      one: "1",\n      two: 2,\n    }\n  }>\n  <Mouse />\n</Mouse>'
       );
     });
 
@@ -453,7 +454,7 @@ describe('prettyFormat()', () => {
           'HELLO',
           React.createElement('Mouse'), 'CIAO'
         ),
-        '<Mouse\n  customProp={\n    Object {\n      "one": "1",\n      "two": 2,\n    }\n  }\n  onclick={[Function onclick]}>\n  HELLO\n  <Mouse />\n  CIAO\n</Mouse>'
+        '<Mouse\n  customProp={\n    Object {\n      one: "1",\n      two: 2,\n    }\n  }\n  onclick={[Function onclick]}>\n  HELLO\n  <Mouse />\n  CIAO\n</Mouse>'
       );
     });
 
@@ -479,7 +480,7 @@ describe('prettyFormat()', () => {
           ),
           'CIAO'
         ),
-        '<Mouse\n  customProp={\n    Object {\n      "one": "1",\n      "two": 2,\n    }\n  }\n  onclick={[Function onclick]}>\n  HELLO\n  <Mouse\n    customProp={\n      Object {\n        "one": "1",\n        "two": 2,\n      }\n    }\n    onclick={[Function onclick]}>\n    HELLO\n    <Mouse />\n    CIAO\n  </Mouse>\n  CIAO\n</Mouse>'
+        '<Mouse\n  customProp={\n    Object {\n      one: "1",\n      two: 2,\n    }\n  }\n  onclick={[Function onclick]}>\n  HELLO\n  <Mouse\n    customProp={\n      Object {\n        one: "1",\n        two: 2,\n      }\n    }\n    onclick={[Function onclick]}>\n    HELLO\n    <Mouse />\n    CIAO\n  </Mouse>\n  CIAO\n</Mouse>'
       );
     });
 
@@ -502,7 +503,7 @@ describe('prettyFormat()', () => {
             'NESTED'
           )
         ),
-        '<Mouse\n  abc={\n    Object {\n      "one": "1",\n      "two": 2,\n    }\n  }\n  zeus="kentaromiura watched me fix this">\n  <Mouse\n    acbd={\n      Object {\n        "one": "1",\n        "two": 2,\n      }\n    }\n    xyz={123}>\n    NESTED\n  </Mouse>\n</Mouse>'
+        '<Mouse\n  abc={\n    Object {\n      one: "1",\n      two: 2,\n    }\n  }\n  zeus="kentaromiura watched me fix this">\n  <Mouse\n    acbd={\n      Object {\n        one: "1",\n        two: 2,\n      }\n    }\n    xyz={123}>\n    NESTED\n  </Mouse>\n</Mouse>'
       );
     });
 
@@ -592,7 +593,7 @@ describe('prettyFormat()', () => {
           ),
           'CIAO'
         ),
-        '<Mouse customProp={{"one": "1", "two": 2}} onclick={[Function onclick]}>HELLO<Mouse customProp={{"one": "1", "two": 2}} onclick={[Function onclick]}>HELLO<Mouse />CIAO</Mouse>CIAO</Mouse>',
+        '<Mouse customProp={{one: "1", two: 2}} onclick={[Function onclick]}>HELLO<Mouse customProp={{one: "1", two: 2}} onclick={[Function onclick]}>HELLO<Mouse />CIAO</Mouse>CIAO</Mouse>',
         { min: true }
       )
     });

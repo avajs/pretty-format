@@ -1,5 +1,6 @@
 'use strict';
 
+const keyword = require('esutils').keyword;
 const style = require('ansi-styles');
 const printString = require('./printString');
 
@@ -119,6 +120,18 @@ function printArray(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDept
   return colors.label.open + (min ? '' : val.constructor.name + ' ') + colors.label.close + printList(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
 }
 
+function printKey(key, indent, prevIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors) {
+  const typeOf = typeof key;
+  if (typeOf === 'string') {
+    if (keyword.isIdentifierNameES6(key, true)) return colors.key.open + key + colors.key.close;
+    if (/^\d+$/.test(key)) return colors.key.open + key + colors.key.close;
+    return colors.key.open + '"' + printString(key) + '"' + colors.key.close;
+  }
+  if (typeOf === 'symbol') return colors.key.open + printSymbol(key) + colors.key.close;
+
+  return print(key, indent, prevIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
+}
+
 function printMap(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors) {
   let result = colors.label.open + 'Map ' + colors.label.close + colors.bracket.open + '{' + colors.bracket.close;
   const iterator = val.entries();
@@ -130,7 +143,7 @@ function printMap(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDepth,
     const innerIndent = prevIndent + indent;
 
     while (!current.done) {
-      const key = print(current.value[0], indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
+      const key = printKey(current.value[0], indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
       const value = print(current.value[1], indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
 
       result += innerIndent + key + ' => ' + value;
@@ -167,10 +180,10 @@ function printObject(val, indent, prevIndent, spacing, edgeSpacing, refs, maxDep
 
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      const name = print(key, indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
+      const name = printKey(key, indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
       const value = print(val[key], indent, innerIndent, spacing, edgeSpacing, refs, maxDepth, currentDepth, plugins, min, callToJSON, printFunctionName, escapeRegex, colors);
 
-      result += innerIndent + key + ': ' + value;
+      result += innerIndent + name + ': ' + value;
 
       if (i < keys.length - 1) {
         result += colors.comma.open + ',' + colors.comma.close + spacing;
@@ -307,7 +320,8 @@ const DEFAULTS = {
     label: 'blue',
     bracket: 'grey',
     comma: 'grey',
-    misc: 'grey'
+    misc: 'grey',
+    key: 'reset'
   }
 };
 
