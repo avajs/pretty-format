@@ -13,7 +13,8 @@
     "perf": "node perf/test.js"
   },
   "dependencies": {
-    "ansi-styles": "^2.2.1"
+    "ansi-styles": "^2.2.1",
+    "esutils": "^2.0.2"
   },
   "devDependencies": {
     "chalk": "^1.1.3",
