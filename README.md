@@ -1,3 +1,9 @@
+# DEPRECATED
+
+[AVA](https://ava.li) no longer uses this fork. The repository is retained for posterity.
+
+---
+
 # @ava/pretty-format [![Travis build status](http://img.shields.io/travis/avajs/pretty-format.svg?style=flat)](https://travis-ci.org/avajs/pretty-format)
 
 > Stringify any JavaScript value.
